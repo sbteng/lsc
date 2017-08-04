@@ -47,6 +47,7 @@
 					<string>objectClass</string>
 					<string>uid</string>
 					<string>mail</string>
+					<string>userPassword</string>
 				</fetchedAttributes>
 				<getAllFilter>(&amp;(objectClass=person)(cn=*))</getAllFilter>
 				<getOneFilter>(&amp;(objectClass=person)(cn={cn}))</getOneFilter>
@@ -57,7 +58,7 @@
 				<connection reference="ad-dst-conn" />
 				<baseDn>DC=stengdomain,DC=fvt</baseDn>
 				<pivotAttributes>
-					<string>cn</string>
+					<string>sAMAccountName</string>
 				</pivotAttributes>
 				<fetchedAttributes>
 					<string>description</string>
@@ -69,6 +70,10 @@
 					<string>objectClass</string>
 					<string>samAccountName</string>
 					<string>userPrincipalName</string>
+					<string>pwdLastSet</string>
+					<string>unicodePwd</string>
+					<string>userPassword</string>
+				    <string>userAccountControl</string>
 				</fetchedAttributes>
 				<getAllFilter>(objectClass=user)</getAllFilter>
 				<getOneFilter>(&amp;(objectClass=user)(cn={cn}))</getOneFilter>
@@ -77,59 +82,88 @@
 				<mainIdentifier>srcBean.getMainIdentifier()</mainIdentifier>
 				<defaultDelimiter>;</defaultDelimiter>
 				<defaultPolicy>FORCE</defaultPolicy>
+				<conditions>
+					 <create>true</create>
+					 <update>true</update>
+					 <delete>true</delete>
+					 <changeId>true</changeId>
+				</conditions>
 
-
-				<dataset>
-					<name>objectClass</name>
-					<policy>MERGE</policy>
-					<createValues>
+							<dataset>
+				    <name>objectClass</name>
+				    <policy>KEEP</policy>
+				    <forceValues>
 						<string>"user"</string>
-					</createValues>
+						<string>"organizationalPerson"</string>
+						<string>"person"</string>
+						<string>"top"</string>
+				    </forceValues>
 				</dataset>
+				
+				
+				<dataset>
+				 <name>sAMAccountName</name>
+				 <policy>KEEP</policy>
+				 <createValues>
+				  <string>srcBean.getDatasetFirstValueById("cn")</string>
+				 </createValues>
+				</dataset>
+				
+				
+				<dataset>
+				 <name>email</name>
+				 <policy>KEEP</policy>
+				 <createValues>
+				  <string>srcBean.getDatasetFirstValueById("mail")</string>
+				 </createValues>
+				</dataset> 
+				
+			
+				
+				<dataset>
+				 <name>userPrincipalName</name>
+				 <policy>KEEP</policy>
+				 <forceValues>
+				  <string>srcBean.getDatasetFirstValueById("cn") + "@stengdomain.fvt"</string>
+				 </forceValues>
+				</dataset>
+				
+
 
 				<dataset>
-					<name>displayName</name>
-					<policy>FORCE</policy>
-					<createValues>
-						<string> srcBean.getDatasetFirstValueById("sn")</string>
-					</createValues>
+				 <name>userAccountControl</name>
+				 <policy>KEEP</policy>
+				 <createValues>
+				  <string>AD.userAccountControlSet( "0", [AD.UAC_SET_PASSWD_NOTREQD, AD.UAC_SET_NORMAL_ACCOUNT])</string>
+				 </createValues>
 				</dataset>
+		
+				
+				<!-- pwdLastSet = 0 to force user to change password on next connection --> 
+				
+				<dataset> 
+				 <name>pwdLastSet</name>
+				 <policy>KEEP</policy>
+				 <createValues>
+				  <string>"0"</string>
+				 </createValues>
+				</dataset>
+				
+
+				
+				
 				<dataset>
-					<name>givenName</name>
+					<name>userPassword</name>
 					<policy>FORCE</policy>
-					<createValues>
-						<string> srcBean.getDatasetFirstValueById("cn")</string>
-					</createValues>
+					<forceValues>
+						<string>"VMware123"</string>
+					</forceValues>
 				</dataset>
-
-				<dataset>
-					<name>mail</name>
+				
+				 <dataset>
+					<name>default</name>
 					<policy>FORCE</policy>
-					<createValues>
-						<string> srcBean.getDatasetFirstValueById("cn")
-							+"@stengdomain.fvt"</string>
-					</createValues>
 				</dataset>
-
-				<dataset>
-					<name>samAccountName</name>
-					<policy>FORCE</policy>
-					<createValues>
-						<string> srcBean.getDatasetFirstValueById("cn")</string>
-					</createValues>
-				</dataset>
-
-
-
-				<dataset>
-					<name>userPrincipalName</name>
-					<policy>FORCE</policy>
-					<createValues>
-						<string> srcBean.getDatasetFirstValueById("cn")
-							+"@stengdomain.fvt"</string>
-					</createValues>
-				</dataset>
-
 			</propertiesBasedSyncOptions>
 		</task>
 		<task>
@@ -155,7 +189,7 @@
 			<ldapDestinationService>
 				<name>ad-group-service</name>
 				<connection reference="ad-dst-conn" />
-				<baseDn>OU=Groups,DC=stengdomain,DC=fvt</baseDn>
+				<baseDn>DC=stengdomain,DC=fvt</baseDn>
 				<pivotAttributes>
 					<string>cn</string>
 				</pivotAttributes>
@@ -169,8 +203,7 @@
 				<getOneFilter>(&amp;(objectClass=group)(cn={cn}))</getOneFilter>
 			</ldapDestinationService>
 			<propertiesBasedSyncOptions>
-				<mainIdentifier>"CN="+ srcBean.getDatasetFirstValueById("cn")+
-					",OU=Groups,DC=stengdomain,DC=fvt"</mainIdentifier>
+				<mainIdentifier>srcBean.getMainIdentifier()</mainIdentifier>
 				<defaultDelimiter>;</defaultDelimiter>
 				<defaultPolicy>FORCE</defaultPolicy>
 
