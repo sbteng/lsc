@@ -29,6 +29,7 @@
 		</ldapConnection>
 	</connections>
 	<tasks>
+
 		<task>
 			<name>People</name>
 			<bean>org.lsc.beans.SimpleBean</bean>
@@ -72,7 +73,7 @@
 					<string>userPrincipalName</string>
 					<string>pwdLastSet</string>
 					<string>unicodePwd</string>
-					<string>userPassword</string>
+				
 				    <string>userAccountControl</string>
 				</fetchedAttributes>
 				<getAllFilter>(objectClass=user)</getAllFilter>
@@ -150,23 +151,24 @@
 				</dataset>
 				
 
-				
+				<!-- 
 				
 				<dataset>
-					<name>userPassword</name>
+					<name>unicodePwd</name>
 					<policy>FORCE</policy>
-					<forceValues>
-						<string>"VMware123"</string>
-					</forceValues>
-				</dataset>
-				
+					<createValues>
+						<string>AD.getUnicodePwd("VMware123")</string>
+					</createValues>
+				</dataset> 
+				 -->
 				 <dataset>
 					<name>default</name>
 					<policy>FORCE</policy>
 				</dataset>
 			</propertiesBasedSyncOptions>
 		</task>
-		<task>
+		
+	<task>
 			<name>Group</name>
 			<bean>org.lsc.beans.SimpleBean</bean>
 			<ldapSourceService>
@@ -244,7 +246,6 @@
 
 			</propertiesBasedSyncOptions>
 		</task>
-
 
 	</tasks>
 </lsc>

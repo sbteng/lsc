@@ -1,3 +1,14 @@
+Added by steng@vmware.com
+
+
+第一步： 在AD里面手动创建所有的OU
+第二步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址和用户名密码
+第三步：同步人
+cd C:\ldap2ad\lsc-2.2-SNAPSHOT\bin
+lsc.bat -f ../etc -s People
+第四步：同步Group
+lsc.bat -f ../etc -s Group
+
 # LDAP Synchronization Connector
 
 [![Build Status](https://travis-ci.org/lsc-project/lsc.svg?branch=master)](https://travis-ci.org/lsc-project/lsc)
