@@ -1,0 +1,217 @@
+<?xml version="1.0" ?>
+<lsc xmlns="http://lsc-project.org/XSD/lsc-core-2.2.xsd" revision="0">
+	<connections>
+		<ldapConnection>
+			<name>oracle-src-conn</name>
+			<url>ldap://localhost:389/dc=stengdomain,dc=fvt</url>
+			<username>CN=administrator</username>
+			<password>ca$hc0w</password>
+			<authentication>SIMPLE</authentication>
+			<referral>IGNORE</referral>
+			<derefAliases>NEVER</derefAliases>
+			<version>VERSION_3</version>
+			<pageSize>-1</pageSize>
+			<factory>com.sun.jndi.ldap.LdapCtxFactory</factory>
+			<tlsActivated>false</tlsActivated>
+		</ldapConnection>
+		<ldapConnection>
+			<name>ad-dst-conn</name>
+			<url>ldap://10.112.118.148:389/DC=stengdomain,DC=fvt</url>
+			<username>CN=administrator,CN=Users,DC=stengdomain,DC=fvt</username>
+			<password>ca$hc0w</password>
+			<authentication>SIMPLE</authentication>
+			<referral>IGNORE</referral>
+			<derefAliases>NEVER</derefAliases>
+			<version>VERSION_3</version>
+			<pageSize>-1</pageSize>
+			<factory>com.sun.jndi.ldap.LdapCtxFactory</factory>
+			<tlsActivated>false</tlsActivated>
+		</ldapConnection>
+	</connections>
+	<tasks>
+		<task>
+			<name>People</name>
+			<bean>org.lsc.beans.SimpleBean</bean>
+			<ldapSourceService>
+				<name>oracle-people-service</name>
+				<connection reference="oracle-src-conn" />
+				<baseDn>dc=stengdomain,dc=fvt</baseDn>
+				<pivotAttributes>
+					<string>cn</string>
+				</pivotAttributes>
+				<fetchedAttributes>
+					<string>description</string>
+					<string>cn</string>
+					<string>dn</string>
+					<string>sn</string>
+					<string>objectClass</string>
+					<string>uid</string>
+					<string>mail</string>
+				</fetchedAttributes>
+				<getAllFilter>(&amp;(objectClass=person)(cn=*))</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=person)(cn={cn}))</getOneFilter>
+				<cleanFilter>(&amp;(objectClass=person)(cn={cn}))</cleanFilter>
+			</ldapSourceService>
+			<ldapDestinationService>
+				<name>ad-people-service</name>
+				<connection reference="ad-dst-conn" />
+				<baseDn>DC=stengdomain,DC=fvt</baseDn>
+				<pivotAttributes>
+					<string>cn</string>
+				</pivotAttributes>
+				<fetchedAttributes>
+					<string>description</string>
+					<string>cn</string>
+					<string>sn</string>
+					<string>mail</string>
+					<string>givenName</string>
+					<string>displayName</string>
+					<string>objectClass</string>
+					<string>samAccountName</string>
+					<string>userPrincipalName</string>
+				</fetchedAttributes>
+				<getAllFilter>(objectClass=user)</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=user)(cn={cn}))</getOneFilter>
+			</ldapDestinationService>
+			<propertiesBasedSyncOptions>
+				<mainIdentifier>srcBean.getMainIdentifier()</mainIdentifier>
+				<defaultDelimiter>;</defaultDelimiter>
+				<defaultPolicy>FORCE</defaultPolicy>
+
+
+				<dataset>
+					<name>objectClass</name>
+					<policy>MERGE</policy>
+					<createValues>
+						<string>"user"</string>
+					</createValues>
+				</dataset>
+
+				<dataset>
+					<name>displayName</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("sn")</string>
+					</createValues>
+				</dataset>
+				<dataset>
+					<name>givenName</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("cn")</string>
+					</createValues>
+				</dataset>
+
+				<dataset>
+					<name>mail</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("cn")
+							+"@stengdomain.fvt"</string>
+					</createValues>
+				</dataset>
+
+				<dataset>
+					<name>samAccountName</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("cn")</string>
+					</createValues>
+				</dataset>
+
+
+
+				<dataset>
+					<name>userPrincipalName</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("cn")
+							+"@stengdomain.fvt"</string>
+					</createValues>
+				</dataset>
+
+			</propertiesBasedSyncOptions>
+		</task>
+		<task>
+			<name>Group</name>
+			<bean>org.lsc.beans.SimpleBean</bean>
+			<ldapSourceService>
+				<name>oracle-group-service</name>
+				<connection reference="oracle-src-conn" />
+				<baseDn>dc=stengdomain,dc=fvt</baseDn>
+				<pivotAttributes>
+					<string>cn</string>
+				</pivotAttributes>
+				<fetchedAttributes>
+					<string>cn</string>
+					<string>uniqueMember</string>
+					<string>description</string>
+
+				</fetchedAttributes>
+				<getAllFilter>(&amp;(objectClass=groupOfUniqueNames)(cn=*))</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=groupOfUniqueNames)(cn={cn}))</getOneFilter>
+				<cleanFilter>(&amp;(objectClass=groupOfUniqueNames)(cn={cn}))</cleanFilter>
+			</ldapSourceService>
+			<ldapDestinationService>
+				<name>ad-group-service</name>
+				<connection reference="ad-dst-conn" />
+				<baseDn>OU=Groups,DC=stengdomain,DC=fvt</baseDn>
+				<pivotAttributes>
+					<string>cn</string>
+				</pivotAttributes>
+				<fetchedAttributes>					
+					<string>cn</string>
+					<string>member</string>
+					<string>description</string>
+					<string>objectClass</string>					
+				</fetchedAttributes>
+				<getAllFilter>(objectClass=group)</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=group)(cn={cn}))</getOneFilter>
+			</ldapDestinationService>
+			<propertiesBasedSyncOptions>
+				<mainIdentifier>"CN="+ srcBean.getDatasetFirstValueById("cn")+
+					",OU=Groups,DC=stengdomain,DC=fvt"</mainIdentifier>
+				<defaultDelimiter>;</defaultDelimiter>
+				<defaultPolicy>FORCE</defaultPolicy>
+
+				<dataset>
+					<name>objectClass</name>
+					<policy>FORCE</policy>
+					<forceValues>
+						<string>"top"</string>
+						<string>"group"</string>
+					</forceValues>
+				</dataset>
+				
+				<dataset>
+					<name>samAccountName</name>
+					<policy>FORCE</policy>
+					<createValues>
+						<string> srcBean.getDatasetFirstValueById("cn")</string>
+					</createValues>
+				</dataset>
+				
+				 <dataset>
+         <name>member</name>
+         <policy>FORCE</policy>
+         <forceValues>
+           <string>
+           <![CDATA[rjs:
+                var membersSrcDn = srcBean.getDatasetValuesById("uniqueMember");
+                var membersDstDn = [];
+                for  (var i=0; i<membersSrcDn.size(); i++) {
+                        var memberSrcDn = membersSrcDn.get(i);
+                        membersDstDn.push(memberSrcDn);
+                }
+                membersDstDn
+           ]]>
+           </string>
+         </forceValues>
+      </dataset>
+
+			</propertiesBasedSyncOptions>
+		</task>
+
+
+	</tasks>
+</lsc>
