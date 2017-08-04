@@ -1,13 +1,22 @@
 Added by steng@vmware.com
 
 
-第一步： 在AD里面手动创建所有的OU
-第二步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址和用户名密码
+
+第一步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址和用户名密码
+第二步：同步OU
+lsc.bat -f ../etc -s OU
 第三步：同步人
 cd C:\ldap2ad\lsc-2.2-SNAPSHOT\bin
 lsc.bat -f ../etc -s People
 第四步：同步Group
 lsc.bat -f ../etc -s Group
+
+输出的最后会有如下的显示，注意查看“errors:”，如果success>0并且errors>0，建议再执行一遍相同的命令。第二次执行会增量复制。
+Aug 04 16:30:28 - INFO  - All entries: 33, to modify entries: 30, successf
+odified entries: 30, errors: 0
+
+新创建的用户，默认初始密码都是空密码，也就是没有密码，第一次登录会提示修改密码。
+如果要设置初始密码，AD必须配置SSL，使用LDAPS的636端口连接AD。这是微软的限制。我们没有配置SSL的AD，也就没有做这项测试。
 
 # LDAP Synchronization Connector
 

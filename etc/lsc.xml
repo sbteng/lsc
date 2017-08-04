@@ -150,17 +150,17 @@
 				 </createValues>
 				</dataset>
 				
-
-				<!-- 
+<!-- 
 				
 				<dataset>
 					<name>unicodePwd</name>
 					<policy>FORCE</policy>
+					
 					<createValues>
-						<string>AD.getUnicodePwd("VMware123")</string>
+					<string>AD.getUnicodePwd("123456")</string>
 					</createValues>
 				</dataset> 
-				 -->
+ -->
 				 <dataset>
 					<name>default</name>
 					<policy>FORCE</policy>
@@ -246,6 +246,68 @@
 
 			</propertiesBasedSyncOptions>
 		</task>
+
+		<task>
+			<name>OU</name>
+			<bean>org.lsc.beans.SimpleBean</bean>
+			<ldapSourceService>
+				<name>oracle-ou-service</name>
+				<connection reference="oracle-src-conn" />
+				<baseDn>dc=stengdomain,dc=fvt</baseDn>
+				<pivotAttributes>
+					<string>ou</string>
+				</pivotAttributes>
+				<fetchedAttributes>
+					<string>ou</string>
+					<string>objectClass</string>
+					<string>description</string>
+
+				</fetchedAttributes>
+				<getAllFilter>(&amp;(objectClass=organizationalUnit)(ou=*))</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=organizationalUnit)(ou={ou}))</getOneFilter>
+				<cleanFilter>(&amp;(objectClass=organizationalUnit)(ou={ou}))</cleanFilter>
+			</ldapSourceService>
+			<ldapDestinationService>
+				<name>ad-ou-service</name>
+				<connection reference="ad-dst-conn" />
+				<baseDn>DC=stengdomain,DC=fvt</baseDn>
+				<pivotAttributes>
+					<string>ou</string>
+				</pivotAttributes>
+				<fetchedAttributes>					
+					<string>ou</string>
+					<string>name</string>
+					<string>description</string>
+					<string>objectClass</string>					
+				</fetchedAttributes>
+				<getAllFilter>(objectClass=organizationalUnit)</getAllFilter>
+				<getOneFilter>(&amp;(objectClass=organizationalUnit)(ou={ou}))</getOneFilter>
+			</ldapDestinationService>
+			<propertiesBasedSyncOptions>
+				<mainIdentifier>srcBean.getMainIdentifier()</mainIdentifier>
+				<defaultDelimiter>;</defaultDelimiter>
+				<defaultPolicy>FORCE</defaultPolicy>
+
+				<dataset>
+					<name>objectClass</name>
+					<policy>FORCE</policy>
+					<forceValues>
+						<string>"top"</string>
+						<string>"organizationalUnit"</string>
+					</forceValues>
+				</dataset>
+				<dataset>
+					<name>name</name>
+					<policy>FORCE</policy>
+					<forceValues>
+						<string>srcBean.getDatasetValuesById("ou")</string>					
+					</forceValues>
+				</dataset>
+				
+
+			</propertiesBasedSyncOptions>
+		</task>
+
 
 	</tasks>
 </lsc>

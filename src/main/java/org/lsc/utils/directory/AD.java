@@ -6,8 +6,8 @@
  * flat files...
  *
  *                  ==LICENSE NOTICE==
- * 
- * Copyright (c) 2008 - 2011 LSC Project 
+ *
+ * Copyright (c) 2008 - 2011 LSC Project
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -21,7 +21,7 @@
  *     * Neither the name of the LSC Project nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
  * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -52,9 +52,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Hex;
+
 /**
  * Utility class to manage specific entries for a Microsoft ActiveDirectory
- * 
+ *
  * @author Rémy-Christophe Schermesser <remy-christophe@schermesser.com>
  *
  */
@@ -62,7 +64,7 @@ public class AD {
 
 	// Utility class
 	private AD() {}
-	
+
 	/**
 	 * Set or unset some bits to a UserAccountControl attribute of an AD
 	 *
@@ -124,39 +126,45 @@ public class AD {
 	 * @throws UnsupportedEncodingException
 	 */
 	public static String getUnicodePwd(String password) throws UnsupportedEncodingException {
-		String quotedPassword = "\"" + password + "\"";
-		return new String(quotedPassword.getBytes("UTF-16LE"));
+
+
+		    String quotedPassword = "\"" + password + "\"";
+		    return new String( Hex.encodeHex(quotedPassword.getBytes()));
+
+
+
 	}
 
 
+
 	/**
-	 * The Unix epoch (1 January 1970 00:00:00 UT) in AD's time format 
+	 * The Unix epoch (1 January 1970 00:00:00 UT) in AD's time format
 	 */
 	private static final Long UNIX_EPOCH_IN_AD_TIME = 116444736000000000L;
 
 	/**
 	 * <p>Transform an AD timestamp to a Unix timestamp.</p>
-	 * 
+	 *
 	 * <p>AD timestamps are the number of 100-nanosecond ticks since 1 January 1601 00:00:00 UT.
 	 * Unix timestamps are the number of seconds elapsed since the start of the epoch at 1 January 1970 00:00:00 UT.
 	 * Source: http://en.wikipedia.org/wiki/System_time.</p>
-	 * 
+	 *
 	 * <p>This method returns the number of seconds elapsed since the start of the Unix epoch
 	 * as represented by the AD timestamp given. Any extra precision as provided by the AD timestamp
 	 * is discarded (truncated, not rounded).</p>
-	 * 
+	 *
 	 * @param aDTime An AD timestamp as a long
 	 * @return Timestamp in seconds since the Unix epoch (1 January 1970 00:00:00 UT)
 	 */
 	public static long aDTimeToUnixTimestamp(long aDTime) {
 		// Subtract Unix epoch in AD time, and divide by 10^7 to switch from 100 ns intervals to seconds
-		return (long) ( (aDTime - UNIX_EPOCH_IN_AD_TIME) / (long) Math.pow(10, 7) );
+		return (aDTime - UNIX_EPOCH_IN_AD_TIME) / (long) Math.pow(10, 7);
 	}
-	
+
 	/**
 	 * <p>Helper method to automatically parse an AD timestamp from a String before
 	 * calling {@link #aDTimeToUnixTimestamp(long)}.</p>
-	 * 
+	 *
 	 * @param aDTimeString A string containing an AD timestamp
 	 * @return Timestamp in seconds since the Unix epoch (1 January 1970 00:00:00 UT)
 	 * @see #aDTimeToUnixTimestamp(long)
@@ -165,18 +173,18 @@ public class AD {
 		Long ts = Long.parseLong(aDTimeString);
 		return aDTimeToUnixTimestamp(ts);
 	}
-	
+
 	/**
 	 * <p>Transform a Unix timestamp to an AD timestamp.</p>
-	 * 
+	 *
 	 * <p>AD timestamps are the number of 100-nanosecond ticks since 1 January 1601 00:00:00 UT.
 	 * Unix timestamps are the number of seconds elapsed since the start of the epoch at 1 January 1970 00:00:00 UT.
 	 * Source: http://en.wikipedia.org/wiki/System_time.</p>
-	 * 
+	 *
 	 * <p>This method returns the number of 100-nanosecond ticks elapsed since the start of the AD epoch
 	 * as represented by the Unix timestamp given. The extra precision in the AD timestamp representation
 	 * is set to zeroes (0).</p>
-	 * 
+	 *
 	 * @param unixTimestamp A Unix timestamp as an int
 	 * @return Timestamp in 100-nanosecond ticks since the AD epoch (1 January 1601 00:00:00 UT)
 	 */
@@ -184,11 +192,11 @@ public class AD {
 		// Multiply by 10^7 to switch from seconds to 100 ns intervals and add Unix epoch in AD time
 		return ( unixTimestamp * (long) Math.pow(10, 7) ) + UNIX_EPOCH_IN_AD_TIME;
 	}
-	
+
 	/**
 	 * <p>Helper method to automatically parse a Unix timestamp from a String before
 	 * calling {@link #unixTimestampToADTime(long)}.</p>
-	 * 
+	 *
 	 * @param unixTimestampString A Unix timestamp as an long
 	 * @return Timestamp in 100-nanosecond ticks since the AD epoch (1 January 1601 00:00:00 UT)
 	 * @see #unixTimestampToADTime(int)
@@ -196,8 +204,8 @@ public class AD {
 	public static long unixTimestampToADTime(String unixTimestampString) {
 		return unixTimestampToADTime(Long.parseLong(unixTimestampString));
 	}
-	
-	
+
+
 	/**
 	 * Return the number of weeks since the last logon
 	 *
