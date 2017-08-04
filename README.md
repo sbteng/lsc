@@ -4,8 +4,15 @@ Added by steng@vmware.com
 
 
 
-第一步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址和用户名密码
-
+第一步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址,用户名,密码
+			
+			<url>ldap://localhost:389/dc=stengdomain,dc=fvt</url>
+			
+			<username>CN=administrator</username>
+			
+			<password>123456</password>
+		
+		
 
 第二步：同步OU
 
