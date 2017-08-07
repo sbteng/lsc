@@ -15,6 +15,7 @@
 		<fileSet>
 			<includes>
 				<include>${project.basedir}/README*</include>
+				<include>${project.basedir}/*.bat</include>
 				<include>${project.basedir}/LICENSE*</include>
 				<include>${project.basedir}/CHANGES*</include>
 			</includes>
