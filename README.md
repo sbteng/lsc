@@ -2,7 +2,7 @@
 
 Added by steng@vmware.com
 
-
+首先请检查是否安装了Java。请运行在windows平台上。
 
 第一步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址,用户名,密码
 			
@@ -14,7 +14,13 @@ Added by steng@vmware.com
 		
 		
 
-第二步：同步OU
+第二步： 开始同步
+
+如果使用图形界面，请双击ui.bat
+
+以下为使用命令行方式：
+
+同步OU
 
 cd C:\lsc-2.2-SNAPSHOT\bin
 
