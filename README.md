@@ -1,8 +1,8 @@
 # Oracle IDM 到AD 的同步
 
-Added by steng@vmware.com
+Added by tengshengbo@gmail.com
 
-首先请检查是否安装了Java。请运行在windows平台上。
+首先请检查是否安装了Java。请运行在windows平台上。并且确保可以在命令行里运行java.exe，否则请检查path环境变量是否包含java.exe所在的bin目录。
 
 第一步：编辑etc/lsc.xml，主要编辑LDAP和AD的地址,用户名,密码
 			
